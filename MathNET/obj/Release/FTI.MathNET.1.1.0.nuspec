@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>FTI.MathNET</id>
+    <version>1.1.0</version>
+    <authors>Soumyadip Majumder</authors>
+    <license type="expression">MIT</license>
+    <licenseUrl>https://licenses.nuget.org/MIT</licenseUrl>
+    <readme>README.md</readme>
+    <description>A global library for basic mathematical functions. I will keep the package updated for review and usage. If there is issue feel free to contact.</description>
+    <releaseNotes>Initial release of the MathNET library.
+      - Provides basic mathematical functions.
+      - Includes support for .NET 6.0, .NET 7.0, .NET 8.0, and .NET 9.0.
+      - Added dependency on Newtonsoft.Json version 13.0.1.
+      - Comprehensive documentation and examples included in the README.md file.
+      - Added new method LCM in version 1.1.0</releaseNotes>
+    <copyright>©FTI, 2025 Soumyadip Majumder. All rights reserved.</copyright>
+    <tags>math mathematics library</tags>
+    <repository type="git" />
+    <dependencies>
+      <group targetFramework="net6.0">
+        <dependency id="Newtonsoft.Json" version="13.0.1" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework="net7.0">
+        <dependency id="Newtonsoft.Json" version="13.0.1" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework="net8.0">
+        <dependency id="Newtonsoft.Json" version="13.0.1" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework="net9.0">
+        <dependency id="Newtonsoft.Json" version="13.0.1" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="E:\NuGetLibrary\MathNET\bin\Release\net6.0\MathNET.dll" target="lib\net6.0\MathNET.dll" />
+    <file src="E:\NuGetLibrary\MathNET\bin\Release\net7.0\MathNET.dll" target="lib\net7.0\MathNET.dll" />
+    <file src="E:\NuGetLibrary\MathNET\bin\Release\net8.0\MathNET.dll" target="lib\net8.0\MathNET.dll" />
+    <file src="E:\NuGetLibrary\MathNET\bin\Release\net9.0\MathNET.dll" target="lib\net9.0\MathNET.dll" />
+    <file src="E:\NuGetLibrary\MathNET\README.md" target="README.md" />
+  </files>
+</package>

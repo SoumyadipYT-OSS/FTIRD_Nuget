@@ -1,0 +1,12 @@
+E:\NuGetLibrary\MathNET\bin\Release\net8.0\MathNET.deps.json
+E:\NuGetLibrary\MathNET\bin\Release\net8.0\MathNET.dll
+E:\NuGetLibrary\MathNET\bin\Release\net8.0\MathNET.pdb
+E:\NuGetLibrary\MathNET\obj\Release\net8.0\MathNET.csproj.AssemblyReference.cache
+E:\NuGetLibrary\MathNET\obj\Release\net8.0\MathNET.GeneratedMSBuildEditorConfig.editorconfig
+E:\NuGetLibrary\MathNET\obj\Release\net8.0\MathNET.AssemblyInfoInputs.cache
+E:\NuGetLibrary\MathNET\obj\Release\net8.0\MathNET.AssemblyInfo.cs
+E:\NuGetLibrary\MathNET\obj\Release\net8.0\MathNET.csproj.CoreCompileInputs.cache
+E:\NuGetLibrary\MathNET\obj\Release\net8.0\MathNET.dll
+E:\NuGetLibrary\MathNET\obj\Release\net8.0\refint\MathNET.dll
+E:\NuGetLibrary\MathNET\obj\Release\net8.0\MathNET.pdb
+E:\NuGetLibrary\MathNET\obj\Release\net8.0\ref\MathNET.dll
