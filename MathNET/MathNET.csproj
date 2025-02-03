@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>FTI.MathNET</PackageId>
-    <Version>1.1.0</Version>
+    <Version>1.2.0</Version>
     <Authors>Soumyadip Majumder</Authors>
     <!-- <Company>FirstTouchIndia</Company> -->
     <Description>A global library for basic mathematical functions. I will keep the package updated for review and usage. If there is issue feel free to contact.</Description>
@@ -22,7 +22,8 @@
       - Includes support for .NET 6.0, .NET 7.0, .NET 8.0, and .NET 9.0.
       - Added dependency on Newtonsoft.Json version 13.0.1.
       - Comprehensive documentation and examples included in the README.md file.
-      - Added new method LCM in version 1.1.0
+      - Covered all basic mathematical (Number-theoretic functions), trigonometirc, hyperbolic, angular, special, summation and product functions, 
+        Power, exponential and logarithmic functions, Floating point manipulation functions, Floating point arithmetic
     </PackageReleaseNotes>
     <Copyright>©FTI, 2025 Soumyadip Majumder. All rights reserved.</Copyright>
   </PropertyGroup>
