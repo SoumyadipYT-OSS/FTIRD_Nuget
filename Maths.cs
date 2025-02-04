@@ -1,4 +1,4 @@
-﻿namespace MathNET
+﻿namespace FTI.MathNET
 {
 
     public class Maths
