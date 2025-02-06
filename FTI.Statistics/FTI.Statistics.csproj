@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp3.1;net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PackageId>FTI.Statistics</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Soumyadip Majumder</Authors>
+    <!-- <Company>FirstTouchIndia</Company> -->
+    <Description>
+      A global statistics library, this module offers a comprehensive suite of functions 
+      for calculating mathematical statistics on real-valued numerical data. Designed for 
+      precision and ease, FTI.Statistics empowers users to delve into robust statistical 
+      analysis with unparalleled efficiency.
+
+      *Unless explicitly noted, these functions support `int`, `float`, `Decimal`, and `Fraction`. 
+      Behavior with other types (whether in the numeric tower or not) is currently unsupported. 
+      Collections with a mix of types are also undefined and implementation-dependent. 
+      If your input data consists of mixed types, you may be able to use `map()` to ensure a 
+      consistent result, for example: `map(float, input_data).* 
+    </Description>
+    <PackageTags>math;mathematics;library;stat;stats;statistics;</PackageTags>
+    <!-- <RepositoryUrl>https://github.com/SoumyadipYT-OSS/MathNET</RepositoryUrl> -->
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Product>StatisticsNET</Product>
+    <LangVersion>12.0</LangVersion>
+    <PackageReleaseNotes>
+      Initial release of the Statistics library.
+      - Added funtions for descriptive statistics functions.
+      - Includes support for .NET Core 3.1 (Standard framework) .NET 6.0, .NET 7.0, .NET 8.0, and .NET 9.0.
+      - Added dependency on Newtonsoft.Json version 13.0.1.
+      - Use of primary constructor in exception modules, that enhance performance during build your development.
+      - Comprehensive documentation and examples included in the README.md file.
+      </PackageReleaseNotes>
+    <Copyright>©FTI, 2025 Soumyadip Majumder. All rights reserved.</Copyright>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <None Include="README.md">
+      <Pack>true</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+</Project>
