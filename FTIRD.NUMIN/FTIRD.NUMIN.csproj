@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net7.0;net8.0;net9.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PackageId>FTIRD.NUMIN</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Soumyadip Majumder</Authors>
+    <!-- <Company>FirstTouchIndia</Company> -->
+    <Description>
+      FTIRD.NUMIN stands as a paradigm of modern scientific computing in the .NET ecosystem. 
+      Meticulously engineered to parallel the elegance of NumPy, this library 
+      seamlessly fuses multidimensional array operations with avant-garde numerical 
+      algorithms. It empowers developers to transform raw data into insightful 
+      intelligence through an intuitive and high-performance computational toolkit.
+    </Description>
+    <PackageTags>numerical; scientific; math; arrays; linalg; numpy; numin; data-science; machine-learning; ndarray; math-library; numerical-analysis</PackageTags>
+    <!-- <RepositoryUrl>https://github.com/SoumyadipYT-OSS/FTIRD.dotNET</RepositoryUrl> -->
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>Docs/README.md</PackageReadmeFile>
+    <Product>FTIRD.NUMIN</Product>
+    <LangVersion>12.0</LangVersion>
+    <PackageReleaseNotes>
+    Initial release (1.0.0) of FTIRD.NUMIN. This release includes:
+    - Core functionalities for NDArray operations.
+    - Linear algebra methods including LU Decomposition, QR Decomposition, SVD, Cholesky Decomposition, and Eigenvalues/Eigenvectors.
+    - Utility functions for NDArray initialization (zeros, ones, identity, etc.).
+    </PackageReleaseNotes>    
+    <Copyright>©FTIRD, 2025 Soumyadip Majumder. All rights reserved.</Copyright>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <None Include="Docs/README.md">
+      <Pack>true</Pack>
+      <PackagePath>Docs/</PackagePath>
+    </None>
+    <None Include="Docs/CHANGELOG.md">
+      <Pack>true</Pack>
+      <PackagePath>Docs/</PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>
