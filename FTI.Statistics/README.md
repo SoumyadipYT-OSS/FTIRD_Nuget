@@ -1,116 +1,413 @@
-## FTI.Statistics
-FTI.Statistics is a comprehensive library offering a variety of statistical functions to help you perform complex statistical analyses with ease. This library includes functions for calculating basic statistics, measures of spread, advanced statistical measures, combinatorial functions, and special functions.
+# FTI.Statistics
 
+[![NuGet Version](https://img.shields.io/nuget/v/FTI.Statistics.svg)](https://www.nuget.org/packages/FTI.Statistics/)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/FTI.Statistics.svg)](https://www.nuget.org/packages/FTI.Statistics/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![.NET](https://img.shields.io/badge/.NET-6%7C7%7C8%7C9%7CCore_3.1-512BD4)](https://dotnet.microsoft.com/)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
 
-### Features
+A comprehensive, high-performance statistics library for .NET providing essential mathematical statistics functions for real-valued numerical data. FTI.Statistics offers robust statistical analysis capabilities with production-ready reliability, comprehensive input validation, and zero external dependencies.
 
-#### • Basic Descriptive Statistics
+## Table of Contents
 
-    Median: Calculate the median of a data set.
+- [Key Features](#key-features)
+- [Installation](#installation)
+- [Framework Support](#framework-support)
+- [Quick Start Examples](#quick-start-examples)
+- [Complete Function Reference](#complete-function-reference)
+- [Error Handling](#error-handling)
+- [Performance Considerations](#performance-considerations)
+- [Best Practices & Common Patterns](#best-practices--common-patterns)
+- [Use Cases](#use-cases)
+- [Version History](#version-history)
+- [License](#license)
+- [Contributing](#contributing)
+- [Contact & Support](#contact--support)
 
-    Mode: Find the most frequently occurring value in a data set.
+## Key Features
 
-    Range: Determine the difference between the maximum and minimum values.
+### Central Tendency & Descriptive Statistics
+- **Mean**: Arithmetic, geometric, and harmonic means with optional weights
+- **Median**: Standard median with robust median-low and median-high variants
+- **Mode**: Single and multi-mode detection for discrete data
+- **Summary**: Comprehensive statistical overview (count, mean, std, min, Q1, median, Q3, max)
 
-    CountEach: Count the occurrences of each value in a data set.
+### Dispersion & Variability Analysis  
+- **Variance & Standard Deviation**: Sample and population variants
+- **Range**: Simple data range calculation (max - min)
+- **Interquartile Range (IQR)**: Robust dispersion measure (Q3 - Q1)
+- **Root Mean Square (RMS)**: For signal processing and quality metrics
 
+### Distribution & Percentile Analysis
+- **Quantiles**: Flexible n-quantile calculation with exclusive/inclusive methods
+- **Percentiles**: Get values at any percentile (0-100) with linear interpolation
+- **Grouped Statistics**: Median estimation for binned/grouped data
 
-#### • Measures of Spread and Variability
+### Relationships & Correlation
+- **Correlation**: Pearson (linear) and Spearman (rank) correlation coefficients
+- **Covariance**: Sample covariance for joint variability analysis
+- **Linear Regression**: Ordinary least squares with proportional fitting option
 
-    Standard Deviation: Compute the standard deviation for sample and population data sets.
+### Advanced Statistical Functions
+- **Kernel Density Estimation (KDE)**: Multiple kernel types with bandwidth control
+- **Normal Distribution**: PDF, CDF calculations with error function approximation
+- **Combinatorial Functions**: Binomial and multinomial coefficients
+- **Special Functions**: Beta, Gamma, Polygamma, and Riemann Zeta functions
 
-    Variance: Calculate the variance for sample and population data sets.
+### Robust Design
+- **Comprehensive Input Validation**: NaN, Infinity, and edge case handling
+- **Consistent Error Handling**: Custom `StatisticsError` for clear error reporting
+- **Performance Optimized**: Efficient algorithms with minimal memory allocation
+- **Zero Dependencies**: Lightweight package with no external dependencies
 
-    Root Mean Square (RMS): Calculate the square root of the average of the squares of a set of values. 
+## Installation
 
+### Package Manager Console
+```powershell
+Install-Package FTI.Statistics
+```
 
-#### • Advanced Statistical Measures
-    Covariance: Measure the joint variability of two random variables.
-
-    Pearson's Correlation Coefficient: Determine the linear relationship two variables.
-
-
-#### • Data Representation
-    Histogram: Create a histogram by counting the frequency of each value and grouping them into bins.
-
-
-#### • Statistical Methods
-    Least Squares Linear Regression: Find the best-fitting straight line through a set of points.
-
-
-#### • Combinatorial Functions
-    
-    Binomial Coefficient: Calculate the number of ways to choose 𝑘 items from 𝑛 items without regard to order.
-
-    Multinomial Coefficient: Generalize the binomial coefficient to partition a set of 𝑛 items into 𝑟 groups.
-
-
-#### • Special Functions
-    Beta Function: Evaluate the beta function for given parameters.
-
-    Digamma Function: Compute the logarithmic derivative of the gamma function.
-
-    Polygamma Function: Calculate the (n+1)th derivative of the logarithm of the gamma function.
-
-    Riemann Zeta Function: Evaluate the Riemann zeta function for a given value.
-
-
-
-### Installation
-
-To install the FTI.Statistics NuGet package, use the following command:
-
-```Bash
+### .NET CLI
+```bash
 dotnet add package FTI.Statistics
 ```
 
+### PackageReference
+```xml
+<PackageReference Include="FTI.Statistics" Version="1.1.2" />
+```
 
-### Usage
+## Framework Support
 
-#### Example Code
+- ✅ .NET Core 3.1
+- ✅ .NET 6.0
+- ✅ .NET 7.0  
+- ✅ .NET 8.0
+- ✅ .NET 9.0
 
+## Quick Start Examples
+
+### Basic Descriptive Statistics
 ```csharp
-using System;
 using FTI.Statistics;
 
-class Program
+var data = new List<double> { 1.2, 2.5, 3.1, 4.7, 5.3, 6.8, 7.2, 8.9, 9.1, 10.5 };
+
+// Central tendency
+double mean = Stats.Mean(data);                    // 5.83
+double median = Stats.Median(data);                // 6.05
+double mode = Stats.Mode(new[] { 1, 2, 2, 3, 3, 3 }); // 3
+
+// Dispersion
+double range = Stats.Range(data);                  // 9.3
+double iqr = Stats.InterquartileRange(data);       // 4.55
+double stdev = Stats.Stdev(data);                  // 3.12
+
+// Percentiles
+double p25 = Stats.Percentile(data, 25);           // 25th percentile
+double p75 = Stats.Percentile(data, 75);           // 75th percentile
+double p90 = Stats.Percentile(data, 90);           // 90th percentile
+```
+
+### Comprehensive Data Summary
+```csharp
+var data = new List<double> { 12.5, 15.2, 18.7, 22.1, 25.8, 28.3, 31.9, 35.4, 38.7, 42.1 };
+
+var summary = Stats.Summary(data);
+Console.WriteLine(summary);
+// Output: Count: 10, Mean: 27.0700, Std: 9.8234, Min: 12.5000, Q1: 19.4000, Median: 27.0500, Q3: 33.6500, Max: 42.1000
+
+// Access individual properties
+Console.WriteLine($"Dataset has {summary.Count} points");
+Console.WriteLine($"Mean: {summary.Mean:F2}");
+Console.WriteLine($"Standard Deviation: {summary.StandardDeviation:F2}");
+Console.WriteLine($"Median: {summary.Median:F2}");
+```
+
+### Correlation and Regression Analysis
+```csharp
+var x = new List<double> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+var y = new List<double> { 2.1, 3.9, 6.2, 7.8, 10.1, 12.3, 14.2, 16.1, 18.3, 20.2 };
+
+// Correlation analysis
+double pearson = Stats.Correlation(x, y);                    // Pearson correlation
+double spearman = Stats.Correlation(x, y, "ranked");         // Spearman correlation
+double covariance = Stats.Covariance(x, y);                  // Sample covariance
+
+// Linear regression
+var (slope, intercept) = Stats.LinearRegression(x, y);
+Console.WriteLine($"y = {slope:F3}x + {intercept:F3}");
+```
+
+### Advanced Statistical Functions
+```csharp
+var data = new double[] { 1.2, 2.3, 2.1, 3.4, 2.8, 3.9, 4.1, 3.7, 4.5, 5.2 };
+
+// Kernel Density Estimation
+var evalPoints = new double[] { 1.0, 2.0, 3.0, 4.0, 5.0 };
+var kdeResult = Stats.Kde(data, evalPoints, h: 0.5, kernel: "normal");
+
+// Normal distribution
+var normalDist = new Stats.NormalDist(mu: 3.0, sigma: 1.5);
+double pdf = normalDist.Pdf(2.5);    // Probability density at x=2.5
+double cdf = normalDist.Cdf(2.5);    // Cumulative probability at x=2.5
+
+// Combinatorial functions
+long binomial = Stats.Binomial(10, 3);                       // 10 choose 3 = 120
+long multinomial = Stats.Multinomial(10, new List<int> { 3, 3, 4 }); // Multinomial coefficient
+```
+
+### Working with Different Data Types
+```csharp
+// Works with various IEnumerable<double> sources
+var array = new double[] { 1, 2, 3, 4, 5 };
+var list = new List<double> { 1, 2, 3, 4, 5 };
+var enumerable = Enumerable.Range(1, 5).Select(x => (double)x);
+
+double arrayMean = Stats.Mean(array);        // All work the same
+double listMean = Stats.Mean(list);
+double enumerableMean = Stats.Mean(enumerable);
+
+// Robust error handling
+try 
 {
-    static void Main(string[] args)
-    {
-        var data = new List<double> {1, 2, 2, 3, 3, 3, 4, 4, 4, 4};
-
-        // Calculate the range
-        double range = Statistics.Range(data);
-        Console.WriteLine($"Range: {range}");
-
-        // Calculate the root mean square
-        double rms = Statistics.RootMeanSquare(data);
-        Console.WriteLine($"Root Mean Square: {rms}");
-
-        // Calculate Pearson's correlation coefficient
-        var x = new List<double> {1, 2, 3, 4, 5};
-        var y = new List<double> {2, 3, 5, 7, 11};
-        double correlation = Statistics.PearsonCorrelation(x, y);
-        Console.WriteLine($"Pearson's Correlation Coefficient: {correlation}");
-
-        // Create a histogram
-        var histogram = Statistics.Histogram(data, 5);
-        foreach (var bin in histogram)
-        {
-            Console.WriteLine($"Range: {bin.Key}, Count: {bin.Value}");
-        }
-    }
+    Stats.Mean(new double[] { });  // Empty data
+}
+catch (Stats.StatisticsError ex)
+{
+    Console.WriteLine($"Error: {ex.Message}");
 }
 ```
 
+## Complete Function Reference
 
-### Package Version
-    - Initial Version: 1.0.0
+### Central Tendency
+| Function | Description | Example |
+|----------|-------------|---------|
+| `Mean()` | Arithmetic mean | `Stats.Mean(data)` |
+| `FMean()` | Fast mean with optional weights | `Stats.FMean(data, weights)` |
+| `GeometricMean()` | Geometric mean | `Stats.GeometricMean(data)` |
+| `HarmonicMean()` | Harmonic mean with optional weights | `Stats.HarmonicMean(data, weights)` |
+| `Median()` | Standard median | `Stats.Median(data)` |
+| `MedianLow()` | Low median (actual data point) | `Stats.MedianLow(data)` |
+| `MedianHigh()` | High median (actual data point) | `Stats.MedianHigh(data)` |
+| `MedianGrouped()` | Median for grouped/binned data | `Stats.MedianGrouped(data, interval)` |
+| `Mode<T>()` | Most frequent value | `Stats.Mode(data)` |
+| `Multimode<T>()` | All most frequent values | `Stats.Multimode(data)` |
 
-    Upcoming version will be updated and documentation will come, stay tuned!
+### Dispersion & Spread
+| Function | Description | Example |
+|----------|-------------|---------|
+| `Range()` | Data range (max - min) | `Stats.Range(data)` |
+| `InterquartileRange()` | IQR (Q3 - Q1) | `Stats.InterquartileRange(data)` |
+| `Variance()` | Sample variance | `Stats.Variance(data)` |
+| `Pvariance()` | Population variance | `Stats.Pvariance(data)` |
+| `Stdev()` | Sample standard deviation | `Stats.Stdev(data)` |
+| `Pstdev()` | Population standard deviation | `Stats.Pstdev(data)` |
 
+### Distribution Analysis
+| Function | Description | Example |
+|----------|-------------|---------|
+| `Percentile()` | Value at given percentile | `Stats.Percentile(data, 75)` |
+| `Quantiles()` | N-quantile cut points | `Stats.Quantiles(data, 4)` |
+| `Summary()` | Comprehensive statistics | `Stats.Summary(data)` |
 
-Feel free to contact.
+### Relationships & Correlation
+| Function | Description | Example |
+|----------|-------------|---------|
+| `Correlation()` | Pearson/Spearman correlation | `Stats.Correlation(x, y)` |
+| `Covariance()` | Sample covariance | `Stats.Covariance(x, y)` |
+| `LinearRegression()` | Linear regression (OLS) | `Stats.LinearRegression(x, y)` |
 
+### Advanced Functions
+| Function | Description | Example |
+|----------|-------------|---------|
+| `Kde()` | Kernel density estimation | `Stats.Kde(data, evalPoints)` |
+| `NormalDist` | Normal distribution class | `new Stats.NormalDist(mu, sigma)` |
+| `Binomial()` | Binomial coefficient | `Stats.Binomial(n, k)` |
+| `Multinomial()` | Multinomial coefficient | `Stats.Multinomial(n, groups)` |
 
-Happy Coding!
+## Error Handling
+
+FTI.Statistics uses a custom `StatisticsError` exception for all statistical errors:
+
+```csharp
+try 
+{
+    var result = Stats.Mean(emptyData);
+}
+catch (Stats.StatisticsError ex)
+{
+    // Handle statistical errors (empty data, invalid parameters, etc.)
+    Console.WriteLine($"Statistical Error: {ex.Message}");
+}
+```
+
+Common error scenarios:
+- Empty or null data sequences
+- Insufficient data points (e.g., variance needs ≥2 points)
+- Invalid parameters (e.g., negative percentiles)
+- NaN or Infinity values in data
+- Mismatched data lengths for paired functions
+
+## Performance Considerations
+
+- **Lazy Evaluation**: Functions accept `IEnumerable<double>` for maximum flexibility
+- **Efficient Enumeration**: Data is materialized only when necessary to minimize memory usage
+- **Memory Optimization**: Minimal object allocation in hot paths for better GC performance
+- **Algorithm Efficiency**: O(n) or O(n log n) complexity for most functions
+- **Single-Pass Processing**: Most functions process data in a single enumeration where possible
+- **Input Validation**: Comprehensive validation with minimal performance overhead
+- **Zero Dependencies**: No external dependencies for lightweight deployment
+
+### Performance Tips
+```csharp
+// ✅ Good: Use List<double> for multiple operations on the same data
+var dataList = data.ToList();
+var mean = Stats.Mean(dataList);
+var stdev = Stats.Stdev(dataList);
+
+// ⚠️ Avoid: Multiple enumerations of expensive IEnumerable
+var expensiveData = database.GetValues(); // Expensive query
+var mean = Stats.Mean(expensiveData);     // First enumeration
+var stdev = Stats.Stdev(expensiveData);   // Second enumeration - BAD
+```
+
+## Best Practices & Common Patterns
+
+### Data Preparation
+```csharp
+// Always validate and clean your data first
+var rawData = GetRawData();
+var cleanData = rawData.Where(x => !double.IsNaN(x) && !double.IsInfinity(x)).ToList();
+
+// Use Summary() for initial data exploration
+var summary = Stats.Summary(cleanData);
+Console.WriteLine($"Data quality check: {summary}");
+```
+
+### Efficient Data Processing
+```csharp
+// Materialize expensive enumerables once
+var data = expensiveQuery.ToList();
+
+// Perform multiple analyses efficiently
+var stats = new {
+    Count = data.Count,
+    Mean = Stats.Mean(data),
+    Median = Stats.Median(data),
+    StdDev = Stats.Stdev(data),
+    Range = Stats.Range(data),
+    IQR = Stats.InterquartileRange(data)
+};
+```
+
+### Robust Statistical Analysis
+```csharp
+// Use IQR and median for robust statistics (less sensitive to outliers)
+double robustCenter = Stats.Median(data);
+double robustSpread = Stats.InterquartileRange(data);
+
+// Combine with traditional statistics for comprehensive analysis
+double traditionalCenter = Stats.Mean(data);
+double traditionalSpread = Stats.Stdev(data);
+
+// Detect potential outliers
+var outlierThreshold = robustCenter + 1.5 * robustSpread;
+var outliers = data.Where(x => Math.Abs(x - robustCenter) > outlierThreshold);
+```
+
+## Use Cases
+
+### Business Analytics
+```csharp
+var salesData = GetMonthlySales();
+var summary = Stats.Summary(salesData);
+var trend = Stats.LinearRegression(months, salesData);
+```
+
+### Quality Control
+```csharp
+var measurements = GetProductMeasurements();
+double mean = Stats.Mean(measurements);
+double controlLimit = mean + 3 * Stats.Stdev(measurements);
+```
+
+### Research & Data Science
+```csharp
+var experimentData = GetExperimentResults();
+var (slope, intercept) = Stats.LinearRegression(dosage, response);
+double correlation = Stats.Correlation(treatment, outcome);
+```
+
+## Version History
+
+### Version 1.1.2 (Latest)
+- Enhanced XML documentation with comprehensive examples and tooltips
+- Improved code comments and developer experience
+- Documentation improvements and clarity enhancements
+- Better IntelliSense support with detailed parameter descriptions
+
+### Version 1.1.1
+- Documentation improvements and usage examples
+
+### Version 1.1.0
+- **NEW**: `Range()` - Calculate data range
+- **NEW**: `InterquartileRange()` - Calculate IQR for robust dispersion
+- **NEW**: `Percentile()` - Get values at any percentile with interpolation  
+- **NEW**: `Summary()` - Comprehensive descriptive statistics
+- Enhanced performance through optimized enumerable handling
+- Improved input validation with NaN/Infinity checking
+- Extensive XML documentation with examples
+- Removed unused dependencies for lighter package
+
+### Version 1.0.0  
+- Initial release with core statistical functions
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Contributing
+
+Contributions are welcome! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.
+
+### How to Contribute
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes with appropriate tests
+4. Commit your changes (`git commit -m 'Add amazing feature'`)
+5. Push to the branch (`git push origin feature/amazing-feature`)
+6. Open a Pull Request
+
+### Development Guidelines
+- Follow existing code style and conventions
+- Add comprehensive XML documentation for new functions
+- Include unit tests for new functionality
+- Ensure backward compatibility unless major version change
+- Update README.md for new features
+
+### Reporting Issues
+- Use the GitHub issue tracker
+- Provide clear description and reproduction steps
+- Include relevant error messages and stack traces
+- Specify .NET version and environment details
+
+## Contact & Support
+
+- **Author**: Soumyadip Majumder
+- **NuGet Package**: [FTI.Statistics](https://www.nuget.org/packages/FTI.Statistics/)
+- **Issues**: [GitHub Issues](https://github.com/SoumyadipYT-OSS/FTIRD_Nuget/issues)
+- **Documentation**: [API Reference](https://github.com/SoumyadipYT-OSS/FTIRD_Nuget/wiki)
+
+### Support
+- Check the README and examples first
+- Search existing issues before creating new ones
+- Use GitHub Discussions for questions and ideas
+- Report bugs with detailed reproduction steps
+
+---
+
+© 2025 Soumyadip Majumder, FTIRD. All rights reserved.
+
+**Made with ❤️ for the .NET community**

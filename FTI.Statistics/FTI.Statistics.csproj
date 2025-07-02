@@ -5,43 +5,65 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackageId>FTI.Statistics</PackageId>
-    <Version>1.0.0</Version>
+    <Version>1.1.2</Version>
     <Authors>Soumyadip Majumder</Authors>
     <!-- <Company>FirstTouchIndia</Company> -->
     <Description>
-      A global statistics library, this module offers a comprehensive suite of functions 
-      for calculating mathematical statistics on real-valued numerical data. Designed for 
-      precision and ease, FTI.Statistics empowers users to delve into robust statistical 
-      analysis with unparalleled efficiency.
+      A comprehensive, high-performance statistics library for .NET providing essential mathematical statistics 
+      functions for real-valued numerical data. FTI.Statistics offers robust statistical analysis capabilities 
+      with production-ready reliability, comprehensive input validation, and enhanced developer experience 
+      through detailed XML documentation and IntelliSense tooltips.
 
-      *Unless explicitly noted, these functions support `int`, `float`, `Decimal`, and `Fraction`. 
-      Behavior with other types (whether in the numeric tower or not) is currently unsupported. 
-      Collections with a mix of types are also undefined and implementation-dependent. 
-      If your input data consists of mixed types, you may be able to use `map()` to ensure a 
-      consistent result, for example: `map(float, input_data).* 
+      Key Features:
+      • Central Tendency: Mean, Median, Mode, Geometric/Harmonic means with weights support
+      • Dispersion: Variance, Standard Deviation, Range, Interquartile Range (IQR)
+      • Distribution: Quantiles, Percentiles, Summary statistics with comprehensive overview
+      • Relationships: Correlation (Pearson/Spearman), Covariance, Linear Regression (OLS)
+      • Advanced: Kernel Density Estimation, Normal Distribution, Beta/Gamma/Special functions
+      • Developer Experience: Rich XML documentation, detailed tooltips, comprehensive error handling
+
+      Perfect for business analytics, data science, research, quality control, and educational applications.
+      Zero external dependencies for lightweight deployment.
     </Description>
-    <PackageTags>math;mathematics;library;stat;stats;statistics;</PackageTags>
-    <!-- <RepositoryUrl>https://github.com/SoumyadipYT-OSS/MathNET</RepositoryUrl> -->
+    <PackageTags>statistics;math;mathematics;data-analysis;descriptive-statistics;correlation;regression;probability;distribution;analytics;dotnet;csharp;data-science;statistical-analysis</PackageTags>
+    <RepositoryUrl>https://github.com/SoumyadipYT-OSS/FTIRD_Nuget</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <Product>StatisticsNET</Product>
+    <PackageProjectUrl>https://github.com/SoumyadipYT-OSS/FTIRD_Nuget</PackageProjectUrl>
+    <Product>FTI.Statistics</Product>
     <LangVersion>12.0</LangVersion>
     <PackageReleaseNotes>
-      Initial release of the Statistics library.
-      - Added funtions for descriptive statistics functions.
-      - Includes support for .NET Core 3.1 (Standard framework) .NET 6.0, .NET 7.0, .NET 8.0, and .NET 9.0.
-      - Added dependency on Newtonsoft.Json version 13.0.1.
-      - Use of primary constructor in exception modules, that enhance performance during build your development.
-      - Comprehensive documentation and examples included in the README.md file.
-      </PackageReleaseNotes>
-    <Copyright>©FTI, 2025 Soumyadip Majumder. All rights reserved.</Copyright>
+      Version 1.1.2 - Enhanced Documentation and Developer Experience coming with major changes
+      
+      NEW IMPROVEMENTS:
+      • Enhanced XML documentation with comprehensive examples and detailed tooltips
+      • Improved IntelliSense support with rich parameter descriptions
+      • Better code comments and developer experience throughout the library
+      • Standardized documentation format with consistent examples
+      • Professional-grade documentation for enterprise and educational use
+      
+      PREVIOUS VERSIONS:
+      • v1.1.1: Documentation improvements and usage examples
+      • v1.1.0: Major feature release with Range(), InterquartileRange(), Percentile(), Summary()
+      • v1.0.0: Initial release with core statistical functions
+      
+      TECHNICAL DETAILS:
+      • Full support for .NET Core 3.1, .NET 6.0, .NET 7.0, .NET 8.0, and .NET 9.0
+      • Zero external dependencies for lightweight deployment
+      • Production-ready with comprehensive input validation and error handling
+      • Backward compatible with all previous versions
+      
+      This version focuses on improving the developer experience with better documentation,
+      tooltips, and examples while maintaining the same robust statistical functionality.
+    </PackageReleaseNotes>
+    <Copyright>©FTIRD, 2025 Soumyadip Majumder. All rights reserved.</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <None Include="README.md">
       <Pack>true</Pack>
       <PackagePath></PackagePath>
     </None>
   </ItemGroup>
 </Project>
+

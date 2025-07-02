@@ -16,8 +16,10 @@
         {
             if (data == null || !data.Any())
             {
-                throw new StatisticsError("Data is empty.");
+                throw new StatisticsError("Data sequence cannot be empty.");
             }
+
+            ValidateFiniteValues(data, "data");
 
             double sum = 0;
             int count = 0;
@@ -53,6 +55,8 @@
                 throw new StatisticsError("Data is empty.");
             }
 
+            ValidateFiniteValues(dataList, "data");
+
             if (weights == null)
             {
                 double sum = 0;
@@ -71,8 +75,10 @@
 
                 if (dataList.Count != weightList.Count)
                 {
-                    throw new ArgumentException("Data and weights must be of the same length.");
+                    throw new StatisticsError("Data and weights must be of the same length.");
                 }
+
+                ValidateFiniteValues(weightList, "weights");
 
                 double weightedSum = 0;
                 double weightSum = 0;
@@ -107,6 +113,8 @@
             {
                 throw new StatisticsError("Data is empty.");
             }
+
+            ValidateFiniteValues(dataList, "data");
 
             if (dataList.Any(x => x <= 0))
             {
@@ -149,6 +157,8 @@
                 throw new StatisticsError("Data is empty.");
             }
 
+            ValidateFiniteValues(dataList, "data");
+
             if (dataList.Any(x => x < 0))
             {
                 throw new StatisticsError("Data contains a negative value.");
@@ -176,8 +186,10 @@
 
                 if (dataList.Count != weightList.Count)
                 {
-                    throw new ArgumentException("Data and weights must be of the same length.");
+                    throw new StatisticsError("Data and weights must be of the same length.");
                 }
+
+                ValidateFiniteValues(weightList, "weights");
 
                 double weightedReciprocalSum = 0;
                 double weightSum = 0;
@@ -204,9 +216,21 @@
 
 
 
+        /// <summary>
+        /// Tolerance constant for Kernel Density Estimation calculations.
+        /// Used as a threshold for numerical precision in KDE computations.
+        /// </summary>
         public const double ToleranceKDE = 1e-8;
 
-        // Define the delegate type
+        /// <summary>
+        /// Delegate type for Kernel Density Estimation functions.
+        /// </summary>
+        /// <param name="data">The input data sample.</param>
+        /// <param name="evalPoints">Points at which to evaluate the density estimation.</param>
+        /// <param name="h">The bandwidth parameter controlling the degree of smoothing.</param>
+        /// <param name="kernel">The kernel function to use for smoothing.</param>
+        /// <param name="cumulative">Whether to return a cumulative distribution function.</param>
+        /// <returns>Estimated density or cumulative distribution values at the evaluation points.</returns>
         public delegate double[] KdeFunction(double[] data, double[] evalPoints, double h, string kernel = "normal", bool cumulative = false);
 
         /// <summary>
@@ -221,10 +245,14 @@
         /// <exception cref="ArgumentException">Thrown if input parameters are invalid.</exception>
         public static double[] Kde(double[] data, double[] evalPoints, double h, string kernel = "normal", bool cumulative = false)
         {
-            if (data == null || data.Length == 0 || evalPoints == null || evalPoints.Length == 0 || h <= 0)
+            if (data == null || data.Length == 0 || evalPoints == null || evalPoints.Length == 0)
             {
-                throw new ArgumentException("Data and evalPoints sequences cannot be empty, and bandwidth must be positive.");
+                throw new StatisticsError("Data and evalPoints sequences cannot be empty.");
             }
+
+            ValidateBandwidth(h);
+            ValidateFiniteValues(data, "data");
+            ValidateFiniteValues(evalPoints, "evalPoints");
 
             int n = data.Length;
             int m = evalPoints.Length;
@@ -292,6 +320,8 @@
             {
                 throw new StatisticsError("Data sequence cannot be empty.");
             }
+
+            ValidateFiniteValues(data, "data");
 
             var sortedData = data.OrderBy(d => d).ToList();
             int n = sortedData.Count;
@@ -452,8 +482,14 @@
             int mid = n / 2;
 
             double L = sortedData[mid - 1]; // Lower class boundary of the median class
-            double F = sortedData.Count(d => d < L); // Cumulative frequency up to the median class
-            double f = sortedData.Count(d => d == L); // Frequency of the median class
+            int F = 0; // Cumulative frequency up to the median class
+            int f = 0; // Frequency of the median class
+            
+            foreach (var value in sortedData)
+            {
+                if (value < L) F++;
+                else if (value == L) f++;
+            }
 
             return L + (n / 2.0 - F) / f * interval;
         }
@@ -479,13 +515,13 @@
         /// The mode is unique in that it is the only statistic in this package that also applies to nominal (non-numeric) data:
         /// <example>
         /// <code>
-        /// mode(new List<string> {"red", "blue", "blue", "red", "green", "red", "red"})
+        /// Stats.Mode(new List&lt;string&gt; {"red", "blue", "blue", "red", "green", "red", "red"})
         /// // Output: "red"
         /// </code>
         /// </example>
         /// 
-        /// Only hashable inputs are supported. To handle type set, consider casting to frozenset. To handle type list, consider casting to tuple.
-        /// For mixed or nested inputs, consider using this slower quadratic algorithm that only depends on equality tests: max(data, key=data.count).
+        /// Note: Only types that implement proper equality comparison are supported.
+        /// For complex data structures, ensure they have appropriate GetHashCode() and Equals() implementations.
         /// </summary>
         /// <param name="data">The input data sequence.</param>
         /// <returns>The mode value.</returns>
@@ -524,11 +560,11 @@
         /// Will return more than one result if there are multiple modes or an empty list if the data is empty.
         /// <example>
         /// <code>
-        /// multimode("aabbbbccddddeeffffgg")
+        /// Stats.Multimode("aabbbbccddddeeffffgg")
         /// // Output: ['b', 'd', 'f']
         /// </code>
         /// <code>
-        /// multimode("")
+        /// Stats.Multimode("")
         /// // Output: []
         /// </code>
         /// </example>
@@ -579,8 +615,8 @@
         /// Setting the method to “inclusive” is used for describing population data or for samples that are known to include the most extreme values from the population. The minimum value in data is treated as the 0th percentile and the maximum value is treated as the 100th percentile. The portion of the population falling below the i-th of m sorted data points is computed as (i - 1) / (m - 1). Given 11 sample values, the method sorts them and assigns the following percentiles: 0%, 10%, 20%, 30%, 40%, 50%, 60%, 70%, 80%, 90%, 100%.
         /// <example>
         /// <code>
-        /// var data = new List<double> {105, 129, 87, 86, 111, 111, 89, 81, 108, 92, 110, 100, 75, 105, 103, 109, 76, 119, 99, 91, 103, 129, 106, 101, 84, 111, 74, 87, 86, 103, 103, 106, 86, 111, 75, 87, 102, 121, 111, 88, 89, 101, 106, 95, 103, 107, 101, 81, 109, 104};
-        /// var quartiles = Quantiles(data, n: 4);
+        /// var data = new List&lt;double&gt; {105, 129, 87, 86, 111, 111, 89, 81, 108, 92, 110, 100, 75, 105, 103, 109, 76, 119, 99, 91, 103, 129, 106, 101, 84, 111, 74, 87, 86, 103, 103, 106, 86, 111, 75, 87, 102, 121, 111, 88, 89, 101, 106, 95, 103, 107, 101, 81, 109, 104};
+        /// var quartiles = Stats.Quantiles(data, n: 4);
         /// Console.WriteLine(string.Join(", ", quartiles));
         /// // Output: [86.0, 103.0, 111.0]
         /// </code>
@@ -620,7 +656,7 @@
                 }
                 else
                 {
-                    throw new ArgumentException("Invalid method specified. Use 'exclusive' or 'inclusive'.");
+                    throw new StatisticsError("Invalid method specified. Use 'exclusive' or 'inclusive'.");
                 }
 
                 double index = p * (m - 1);
@@ -640,10 +676,10 @@
 
         /// <summary>
         /// Returns the population standard deviation (the square root of the population variance).
-        /// See pvariance() for arguments and other details.
+        /// See Pvariance() for arguments and other details.
         /// <example>
         /// <code>
-        /// pstdev(new List<double> {1.5, 2.5, 2.5, 2.75, 3.25, 4.75})
+        /// Stats.Pstdev(new List&lt;double&gt; {1.5, 2.5, 2.5, 2.75, 3.25, 4.75})
         /// // Output: 0.986893273527251
         /// </code>
         /// </example>
@@ -658,6 +694,8 @@
             {
                 throw new StatisticsError("Data sequence cannot be empty.");
             }
+
+            ValidateFiniteValues(data, "data");
 
             double mean = mu ?? data.Average();
             double variance = data.Select(x => Math.Pow(x - mean, 2)).Average();
@@ -677,28 +715,20 @@
         /// If it is missing or None (the default), the arithmetic mean is automatically calculated.
         /// 
         /// Use this function to calculate the variance from the entire population.
-        /// To estimate the variance from a sample, the variance() function is usually a better choice.
+        /// To estimate the variance from a sample, the Variance() function is usually a better choice.
         /// 
         /// Raises StatisticsError if data is empty.
         /// 
         /// Examples:
         /// <example>
         /// <code>
-        /// var data = new List<double> {0.0, 0.25, 0.25, 1.25, 1.5, 1.75, 2.75, 3.25};
-        /// Console.WriteLine(pvariance(data));
+        /// var data = new List&lt;double&gt; {0.0, 0.25, 0.25, 1.25, 1.5, 1.75, 2.75, 3.25};
+        /// Console.WriteLine(Stats.Pvariance(data));
         /// // Output: 1.25
         /// 
         /// var mu = data.Average();
-        /// Console.WriteLine(pvariance(data, mu));
+        /// Console.WriteLine(Stats.Pvariance(data, mu));
         /// // Output: 1.25
-        /// 
-        /// var decimalData = new List<decimal> {27.5m, 30.25m, 30.25m, 34.5m, 41.75m};
-        /// Console.WriteLine(pvariance(decimalData));
-        /// // Output: 24.815
-        /// 
-        /// var fractionData = new List<Fraction> {new Fraction(1, 4), new Fraction(5, 4), new Fraction(1, 2)};
-        /// Console.WriteLine(pvariance(fractionData));
-        /// // Output: new Fraction(13, 72)
         /// </code>
         /// </example>
         /// </summary>
@@ -713,6 +743,8 @@
                 throw new StatisticsError("Data sequence cannot be empty.");
             }
 
+            ValidateFiniteValues(data, "data");
+
             double mean = mu ?? data.Average();
             double variance = data.Select(x => Math.Pow(x - mean, 2)).Average();
             return variance;
@@ -723,10 +755,10 @@
 
         /// <summary>
         /// Returns the sample standard deviation (the square root of the sample variance).
-        /// See variance() for arguments and other details.
+        /// See Variance() for arguments and other details.
         /// <example>
         /// <code>
-        /// stdev(new List<double> {1.5, 2.5, 2.5, 2.75, 3.25, 4.75})
+        /// Stats.Stdev(new List&lt;double&gt; {1.5, 2.5, 2.5, 2.75, 3.25, 4.75})
         /// // Output: 1.0810874155219827
         /// </code>
         /// </example>
@@ -737,13 +769,23 @@
         /// <exception cref="StatisticsError">Thrown if the data sequence is empty or has fewer than two values.</exception>
         public static double Stdev(IEnumerable<double> data, double? xbar = null)
         {
-            if (data == null || !data.Any() || data.Count() < 2)
+            if (data == null)
+            {
+                throw new StatisticsError("Data sequence cannot be null.");
+            }
+
+            var dataList = data as IList<double> ?? data.ToList();
+            int count = dataList.Count;
+
+            if (count < 2)
             {
                 throw new StatisticsError("Data sequence must have at least two values.");
             }
 
-            double mean = xbar ?? data.Average();
-            double variance = data.Select(x => Math.Pow(x - mean, 2)).Sum() / (data.Count() - 1);
+            ValidateFiniteValues(dataList, "data");
+
+            double mean = xbar ?? dataList.Average();
+            double variance = dataList.Select(x => Math.Pow(x - mean, 2)).Sum() / (count - 1);
             return Math.Sqrt(variance);
         }
 
@@ -759,17 +801,17 @@
         /// If it is missing or None (the default), the mean is automatically calculated.
         /// 
         /// Use this function when your data is a sample from a population.
-        /// To calculate the variance from the entire population, see pvariance().
+        /// To calculate the variance from the entire population, see Pvariance().
         /// 
         /// Raises StatisticsError if data has fewer than two values.
         /// <example>
         /// <code>
-        /// var data = new List<double> {2.75, 1.75, 1.25, 0.25, 0.5, 1.25, 3.5};
-        /// Console.WriteLine(variance(data));
+        /// var data = new List&lt;double&gt; {2.75, 1.75, 1.25, 0.25, 0.5, 1.25, 3.5};
+        /// Console.WriteLine(Stats.Variance(data));
         /// // Output: 1.3720238095238095
         /// 
         /// var m = data.Average();
-        /// Console.WriteLine(variance(data, m));
+        /// Console.WriteLine(Stats.Variance(data, m));
         /// // Output: 1.3720238095238095
         /// </code>
         /// </example>
@@ -780,13 +822,23 @@
         /// <exception cref="StatisticsError">Thrown if the data sequence is empty or has fewer than two values.</exception>
         public static double Variance(IEnumerable<double> data, double? xbar = null)
         {
-            if (data == null || !data.Any() || data.Count() < 2)
+            if (data == null)
+            {
+                throw new StatisticsError("Data sequence cannot be null.");
+            }
+
+            var dataList = data as IList<double> ?? data.ToList();
+            int count = dataList.Count;
+
+            if (count < 2)
             {
                 throw new StatisticsError("Data sequence must have at least two values.");
             }
 
-            double mean = xbar ?? data.Average();
-            return data.Select(x => Math.Pow(x - mean, 2)).Sum() / (data.Count() - 1);
+            ValidateFiniteValues(dataList, "data");
+
+            double mean = xbar ?? dataList.Average();
+            return dataList.Select(x => Math.Pow(x - mean, 2)).Sum() / (count - 1);
         }
 
 
@@ -798,15 +850,15 @@
         /// Both inputs must be of the same length (no less than two), otherwise StatisticsError is raised.
         /// <example>
         /// <code>
-        /// var x = new List<double> {1, 2, 3, 4, 5, 6, 7, 8, 9};
-        /// var y = new List<double> {1, 2, 3, 1, 2, 3, 1, 2, 3};
-        /// Console.WriteLine(covariance(x, y));
+        /// var x = new List&lt;double&gt; {1, 2, 3, 4, 5, 6, 7, 8, 9};
+        /// var y = new List&lt;double&gt; {1, 2, 3, 1, 2, 3, 1, 2, 3};
+        /// Console.WriteLine(Stats.Covariance(x, y));
         /// // Output: 0.75
         /// 
-        /// var z = new List<double> {9, 8, 7, 6, 5, 4, 3, 2, 1};
-        /// Console.WriteLine(covariance(x, z));
+        /// var z = new List&lt;double&gt; {9, 8, 7, 6, 5, 4, 3, 2, 1};
+        /// Console.WriteLine(Stats.Covariance(x, z));
         /// // Output: -7.5
-        /// Console.WriteLine(covariance(z, x));
+        /// Console.WriteLine(Stats.Covariance(z, x));
         /// // Output: -7.5
         /// </code>
         /// </example>
@@ -817,15 +869,28 @@
         /// <exception cref="StatisticsError">Thrown if the inputs are not of the same length or have fewer than two values.</exception>
         public static double Covariance(IEnumerable<double> x, IEnumerable<double> y)
         {
-            if (x == null || y == null || x.Count() < 2 || y.Count() < 2 || x.Count() != y.Count())
+            if (x == null || y == null)
+            {
+                throw new StatisticsError("Input sequences cannot be null.");
+            }
+
+            var xList = x as IList<double> ?? x.ToList();
+            var yList = y as IList<double> ?? y.ToList();
+            int xCount = xList.Count;
+            int yCount = yList.Count;
+
+            if (xCount < 2 || yCount < 2 || xCount != yCount)
             {
                 throw new StatisticsError("Both inputs must be of the same length and have at least two values.");
             }
 
-            double meanX = x.Average();
-            double meanY = y.Average();
+            ValidateFiniteValues(xList, "x");
+            ValidateFiniteValues(yList, "y");
 
-            double covariance = x.Zip(y, (xi, yi) => (xi - meanX) * (yi - meanY)).Sum() / (x.Count() - 1);
+            double meanX = xList.Average();
+            double meanY = yList.Average();
+
+            double covariance = xList.Zip(yList, (xi, yi) => (xi - meanX) * (yi - meanY)).Sum() / (xCount - 1);
 
             return covariance;
         }
@@ -869,34 +934,51 @@
         /// <exception cref="StatisticsError">Thrown if the inputs are not of the same length or have fewer than two values.</exception>
         public static double Correlation(IEnumerable<double> x, IEnumerable<double> y, string method = "linear")
         {
-            if (x == null || y == null || x.Count() < 2 || y.Count() < 2 || x.Count() != y.Count())
+            if (x == null || y == null)
+            {
+                throw new StatisticsError("Input sequences cannot be null.");
+            }
+
+            var xList = x as IList<double> ?? x.ToList();
+            var yList = y as IList<double> ?? y.ToList();
+            int xCount = xList.Count;
+            int yCount = yList.Count;
+
+            if (xCount < 2 || yCount < 2 || xCount != yCount)
             {
                 throw new StatisticsError("Both inputs must be of the same length and have at least two values.");
             }
 
+            ValidateFiniteValues(xList, "x");
+            ValidateFiniteValues(yList, "y");
+
+            IEnumerable<double> xData = xList;
+            IEnumerable<double> yData = yList;
+
             if (method == "ranked")
             {
-                x = RankData(x);
-                y = RankData(y);
+                xData = RankData(xList);
+                yData = RankData(yList);
             }
 
-            double meanX = x.Average();
-            double meanY = y.Average();
+            double meanX = xData.Average();
+            double meanY = yData.Average();
 
-            double covariance = x.Zip(y, (xi, yi) => (xi - meanX) * (yi - meanY)).Sum() / (x.Count() - 1);
-            double stdevX = Math.Sqrt(x.Select(xi => Math.Pow(xi - meanX, 2)).Sum() / (x.Count() - 1));
-            double stdevY = Math.Sqrt(y.Select(yi => Math.Pow(yi - meanY, 2)).Sum() / (y.Count() - 1));
+            double covariance = xData.Zip(yData, (xi, yi) => (xi - meanX) * (yi - meanY)).Sum() / (xCount - 1);
+            double stdevX = Math.Sqrt(xData.Select(xi => Math.Pow(xi - meanX, 2)).Sum() / (xCount - 1));
+            double stdevY = Math.Sqrt(yData.Select(yi => Math.Pow(yi - meanY, 2)).Sum() / (yCount - 1));
 
             return covariance / (stdevX * stdevY);
         }
 
         private static IEnumerable<double> RankData(IEnumerable<double> data)
         {
-            var sorted = data.Select((value, index) => new { Value = value, Index = index })
+            var dataList = data as IList<double> ?? data.ToList();
+            var sorted = dataList.Select((value, index) => new { Value = value, Index = index })
                              .OrderBy(x => x.Value)
                              .ToList();
 
-            double[] ranks = new double[data.Count()];
+            double[] ranks = new double[dataList.Count];
             int length = sorted.Count;
 
             for (int i = 0; i < length; i++)
@@ -966,23 +1048,41 @@
         /// <exception cref="StatisticsError">Thrown if the inputs are not of the same length, have fewer than two values, or if x is constant.</exception>
         public static (double Slope, double Intercept) LinearRegression(IEnumerable<double> x, IEnumerable<double> y, bool proportional = false)
         {
-            if (x == null || y == null || x.Count() < 2 || y.Count() < 2 || x.Count() != y.Count())
+            if (x == null || y == null)
+            {
+                throw new StatisticsError("Input sequences cannot be null.");
+            }
+
+            var xList = x as IList<double> ?? x.ToList();
+            var yList = y as IList<double> ?? y.ToList();
+            int xCount = xList.Count;
+            int yCount = yList.Count;
+
+            if (xCount < 2 || yCount < 2 || xCount != yCount)
             {
                 throw new StatisticsError("Both inputs must be of the same length and have at least two values.");
             }
 
-            double meanX = x.Average();
-            double meanY = y.Average();
+            ValidateFiniteValues(xList, "x");
+            ValidateFiniteValues(yList, "y");
+
+            double meanX = xList.Average();
+            double meanY = yList.Average();
 
             if (proportional)
             {
-                double slope = x.Zip(y, (xi, yi) => xi * yi).Sum() / x.Select(xi => xi * xi).Sum();
+                double slope = xList.Zip(yList, (xi, yi) => xi * yi).Sum() / xList.Select(xi => xi * xi).Sum();
                 return (slope, 0);
             }
             else
             {
-                double covariance = x.Zip(y, (xi, yi) => (xi - meanX) * (yi - meanY)).Sum();
-                double varianceX = x.Select(xi => Math.Pow(xi - meanX, 2)).Sum();
+                double covariance = xList.Zip(yList, (xi, yi) => (xi - meanX) * (yi - meanY)).Sum();
+                double varianceX = xList.Select(xi => Math.Pow(xi - meanX, 2)).Sum();
+
+                if (Math.Abs(varianceX) < double.Epsilon)
+                {
+                    throw new StatisticsError("The independent variable x cannot be constant.");
+                }
 
                 double slope = covariance / varianceX;
                 double intercept = meanY - slope * meanX;
@@ -1090,11 +1190,11 @@
         {
             if (n < 0 || k < 0)
             {
-                throw new ArgumentException("n and k must be non-negative.");
+                throw new StatisticsError("n and k must be non-negative.");
             }
             if (k > n)
             {
-                throw new ArgumentException("k must not be greater than n.");
+                throw new StatisticsError("k must not be greater than n.");
             }
 
             if (k == 0 || k == n)
@@ -1143,7 +1243,7 @@
         {
             if (n < 0 || counts.Any(k => k < 0) || counts.Sum() != n)
             {
-                throw new ArgumentException("n and counts must be non-negative, and the sum of counts must equal n.");
+                throw new StatisticsError("n and counts must be non-negative, and the sum of counts must equal n.");
             }
 
             long numerator = Factorial(n);
@@ -1180,7 +1280,7 @@
         {
             if (x <= 0 || y <= 0)
             {
-                throw new ArgumentException("x and y must be positive.");
+                throw new StatisticsError("x and y must be positive.");
             }
             return Gamma(x) * Gamma(y) / Gamma(x + y);
         }
@@ -1209,16 +1309,11 @@
         {
             if (n < 0)
             {
-                throw new ArgumentException("n must be non-negative.");
+                throw new StatisticsError("n must be non-negative.");
             }
             if (x <= 0)
             {
-                throw new ArgumentException("x must be positive.");
-            }
-
-            if (n == 0)
-            {
-                return Digamma(x);
+                throw new StatisticsError("x must be positive.");
             }
 
             // Using recursion to compute the polygamma function of order n
@@ -1254,15 +1349,28 @@
         {
             if (x <= 1)
             {
-                throw new ArgumentException("x must be greater than 1.");
+                throw new StatisticsError("x must be greater than 1.");
             }
 
+            const double TOLERANCE = 1e-15;
             const int MAX_ITERATIONS = 1000000;
             double sum = 0.0;
+            double previousSum = 0.0;
 
             for (int n = 1; n <= MAX_ITERATIONS; n++)
             {
-                sum += 1.0 / Math.Pow(n, x);
+                double term = 1.0 / Math.Pow(n, x);
+                sum += term;
+
+                // Check for convergence every 1000 iterations to avoid overhead
+                if (n % 1000 == 0)
+                {
+                    if (Math.Abs(sum - previousSum) < TOLERANCE)
+                    {
+                        break;
+                    }
+                    previousSum = sum;
+                }
             }
 
             return sum;
@@ -1289,36 +1397,25 @@
         /// <exception cref="StatisticsError">Thrown if the inputs are not of the same length or have fewer than two values.</exception>
         public static double PearsonCorrelation(IEnumerable<double> x, IEnumerable<double> y)
         {
-            if (x == null || y == null || x.Count() < 2 || y.Count() < 2 || x.Count() != y.Count())
-            {
-                throw new StatisticsError("Both inputs must be of the same length and have at least two values.");
-            }
-
-            double meanX = x.Average();
-            double meanY = y.Average();
-
-            double covariance = x.Zip(y, (xi, yi) => (xi - meanX) * (yi - meanY)).Sum();
-            double stdevX = Math.Sqrt(x.Select(xi => Math.Pow(xi - meanX, 2)).Sum());
-            double stdevY = Math.Sqrt(y.Select(yi => Math.Pow(yi - meanY, 2)).Sum());
-
-            return covariance / (stdevX * stdevY);
+            return Correlation(x, y, "linear");
         }
 
 
 
 
         /// <summary>
-        /// Returns the range of a data set.
-        /// The range is the difference between the maximum and minimum values in the data set.
+        /// Returns the range of the data, which is the difference between the maximum and minimum values.
+        /// The range is a simple measure of statistical dispersion.
+        /// If data is empty, StatisticsError is raised.
         /// <example>
         /// <code>
-        /// var data = new List<double> {1, 2, 3, 4, 5, 6, 7, 8, 9};
-        /// Console.WriteLine(Range(data)); // Output: 8
+        /// Range(new List<double> {1, 2, 3, 4, 5})
+        /// // Output: 4.0
         /// </code>
         /// </example>
         /// </summary>
         /// <param name="data">The input data sequence.</param>
-        /// <returns>The range of the data set.</returns>
+        /// <returns>The range (max - min) of the data.</returns>
         /// <exception cref="StatisticsError">Thrown if the data sequence is empty.</exception>
         public static double Range(IEnumerable<double> data)
         {
@@ -1327,221 +1424,254 @@
                 throw new StatisticsError("Data sequence cannot be empty.");
             }
 
-            double min = data.Min();
-            double max = data.Max();
+            ValidateFiniteValues(data, "data");
 
-            return max - min;
+            var dataList = data as IList<double> ?? data.ToList();
+            return dataList.Max() - dataList.Min();
         }
 
 
 
 
         /// <summary>
-        /// Returns the root mean square (RMS) of a data set.
-        /// The RMS is the square root of the average of the squares of a set of values.
+        /// Returns the interquartile range (IQR) of the data, which is the difference between the 75th and 25th percentiles.
+        /// The IQR is a robust measure of statistical dispersion and is less sensitive to outliers than the range.
+        /// If data is empty, StatisticsError is raised.
         /// <example>
         /// <code>
-        /// var data = new List<double> {1, 2, 3, 4, 5, 6, 7, 8, 9};
-        /// Console.WriteLine(RootMeanSquare(data)); // Output: 5.744562646538029
+        /// InterquartileRange(new List<double> {1, 2, 3, 4, 5, 6, 7, 8, 9})
+        /// // Output: 4.0 (Q3 - Q1)
         /// </code>
         /// </example>
         /// </summary>
         /// <param name="data">The input data sequence.</param>
-        /// <returns>The root mean square of the data set.</returns>
+        /// <returns>The interquartile range (Q3 - Q1) of the data.</returns>
         /// <exception cref="StatisticsError">Thrown if the data sequence is empty.</exception>
-        public static double RootMeanSquare(IEnumerable<double> data)
+        public static double InterquartileRange(IEnumerable<double> data)
         {
             if (data == null || !data.Any())
             {
                 throw new StatisticsError("Data sequence cannot be empty.");
             }
 
-            double sumOfSquares = data.Select(x => x * x).Sum();
-            double meanOfSquares = sumOfSquares / data.Count();
-            return Math.Sqrt(meanOfSquares);
+            ValidateFiniteValues(data, "data");
+
+            var quartiles = Quantiles(data, 4);
+            return quartiles[2] - quartiles[0]; // Q3 - Q1
         }
 
 
 
 
         /// <summary>
-        /// Returns the slope and intercept of the best-fitting line for a set of data points using the least squares method.
-        /// The line is of the form y = slope * x + intercept.
+        /// Returns the value at the given percentile of the data.
+        /// The percentile should be between 0 and 100 (inclusive).
+        /// Uses linear interpolation between data points when the percentile falls between two values.
+        /// If data is empty, StatisticsError is raised.
         /// <example>
         /// <code>
-        /// var x = new List<double> {1, 2, 3, 4, 5};
-        /// var y = new List<double> {2, 3, 5, 7, 11};
-        /// var (slope, intercept) = LeastSquaresLinearRegression(x, y);
-        /// Console.WriteLine($"Slope: {slope}, Intercept: {intercept}");
-        /// // Output: Slope: 2.2, Intercept: -0.4
-        /// </code>
-        /// </example>
-        /// </summary>
-        /// <param name="x">The independent variable data sequence.</param>
-        /// <param name="y">The dependent variable data sequence.</param>
-        /// <returns>A tuple containing the slope and intercept of the best-fitting line.</returns>
-        /// <exception cref="StatisticsError">Thrown if the inputs are not of the same length or have fewer than two values, or if x is constant.</exception>
-        public static (double Slope, double Intercept) LeastSquaresLinearRegression(IEnumerable<double> x, IEnumerable<double> y)
-        {
-            if (x == null || y == null || x.Count() < 2 || y.Count() < 2 || x.Count() != y.Count())
-            {
-                throw new StatisticsError("Both inputs must be of the same length and have at least two values.");
-            }
-
-            double meanX = x.Average();
-            double meanY = y.Average();
-
-            double numerator = x.Zip(y, (xi, yi) => (xi - meanX) * (yi - meanY)).Sum();
-            double denominator = x.Select(xi => Math.Pow(xi - meanX, 2)).Sum();
-
-            if (denominator == 0)
-            {
-                throw new StatisticsError("The independent variable x cannot be constant.");
-            }
-
-            double slope = numerator / denominator;
-            double intercept = meanY - slope * meanX;
-
-            return (slope, intercept);
-        }
-
-
-
-
-        /// <summary>
-        /// Returns a dictionary where the keys are the unique values from the data set and the values are the counts of each value.
-        /// <example>
-        /// <code>
-        /// var data = new List<int> {1, 2, 2, 3, 3, 3, 4, 4, 4, 4};
-        /// var counts = CountEach(data);
-        /// foreach (var kvp in counts)
-        /// {
-        ///     Console.WriteLine($"Value: {kvp.Key}, Count: {kvp.Value}");
-        /// }
-        /// // Output:
-        /// // Value: 1, Count: 1
-        /// // Value: 2, Count: 2
-        /// // Value: 3, Count: 3
-        /// // Value: 4, Count: 4
+        /// Percentile(new List<double> {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, 50)
+        /// // Output: 5.5 (median)
         /// </code>
         /// </example>
         /// </summary>
         /// <param name="data">The input data sequence.</param>
-        /// <returns>A dictionary where keys are unique values and values are their counts.</returns>
+        /// <param name="percentile">The percentile to calculate (0-100).</param>
+        /// <returns>The value at the specified percentile.</returns>
+        /// <exception cref="StatisticsError">Thrown if the data sequence is empty or percentile is not between 0 and 100.</exception>
+        public static double Percentile(IEnumerable<double> data, double percentile)
+        {
+            if (data == null || !data.Any())
+            {
+                throw new StatisticsError("Data sequence cannot be empty.");
+            }
+
+            if (percentile < 0 || percentile > 100)
+            {
+                throw new StatisticsError("Percentile must be between 0 and 100.");
+            }
+
+            ValidateFiniteValues(data, "data");
+
+            var sortedData = data.OrderBy(d => d).ToList();
+            int n = sortedData.Count;
+
+            if (percentile == 0) return sortedData[0];
+            if (percentile == 100) return sortedData[n - 1];
+
+            double index = (percentile / 100.0) * (n - 1);
+            int lower = (int)Math.Floor(index);
+            int upper = (int)Math.Ceiling(index);
+            double fraction = index - lower;
+
+            if (lower == upper)
+            {
+                return sortedData[lower];
+            }
+            else
+            {
+                return sortedData[lower] + fraction * (sortedData[upper] - sortedData[lower]);
+            }
+        }
+
+
+
+
+        /// <summary>
+        /// Returns a comprehensive summary of descriptive statistics for the data.
+        /// The summary includes count, mean, standard deviation, minimum, 25th percentile (Q1), 
+        /// median (50th percentile), 75th percentile (Q3), and maximum.
+        /// If data is empty, StatisticsError is raised.
+        /// <example>
+        /// <code>
+        /// var summary = Summary(new List<double> {1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
+        /// Console.WriteLine($"Mean: {summary.Mean}, Median: {summary.Median}");
+        /// </code>
+        /// </example>
+        /// </summary>
+        /// <param name="data">The input data sequence.</param>
+        /// <returns>A SummaryStatistics object containing descriptive statistics.</returns>
         /// <exception cref="StatisticsError">Thrown if the data sequence is empty.</exception>
-        public static Dictionary<T, int> CountEach<T>(IEnumerable<T> data) where T : notnull
+        public static SummaryStatistics Summary(IEnumerable<double> data)
         {
             if (data == null || !data.Any())
             {
                 throw new StatisticsError("Data sequence cannot be empty.");
             }
 
-            var counts = new Dictionary<T, int>();
-            foreach (var item in data)
+            ValidateFiniteValues(data, "data");
+
+            var dataList = data as IList<double> ?? data.ToList();
+            var sortedData = dataList.OrderBy(d => d).ToList();
+            int count = dataList.Count;
+
+            double mean = dataList.Average();
+            double stdev = count > 1 ? Stdev(dataList) : 0.0;
+            double min = sortedData[0];
+            double max = sortedData[count - 1];
+            double median = Median(sortedData);
+
+            // Calculate quartiles
+            double q1, q3;
+            if (count >= 4)
             {
-                if (counts.TryGetValue(item, out int value))
-                {
-                    counts[item] = ++value;
-                }
-                else
-                {
-                    counts[item] = 1;
-                }
+                var quartiles = Quantiles(sortedData, 4);
+                q1 = quartiles[0];
+                q3 = quartiles[2];
+            }
+            else
+            {
+                // For small datasets, use median as approximation
+                q1 = median;
+                q3 = median;
             }
 
-            return counts;
+            return new SummaryStatistics
+            {
+                Count = count,
+                Mean = mean,
+                StandardDeviation = stdev,
+                Minimum = min,
+                Q1 = q1,
+                Median = median,
+                Q3 = q3,
+                Maximum = max
+            };
+        }
+
+        /// <summary>
+        /// Represents a comprehensive summary of descriptive statistics.
+        /// </summary>
+        public class SummaryStatistics
+        {
+            /// <summary>The number of data points.</summary>
+            public int Count { get; set; }
+
+            /// <summary>The arithmetic mean of the data.</summary>
+            public double Mean { get; set; }
+
+            /// <summary>The sample standard deviation of the data.</summary>
+            public double StandardDeviation { get; set; }
+
+            /// <summary>The minimum value in the data.</summary>
+            public double Minimum { get; set; }
+
+            /// <summary>The first quartile (25th percentile) of the data.</summary>
+            public double Q1 { get; set; }
+
+            /// <summary>The median (50th percentile) of the data.</summary>
+            public double Median { get; set; }
+
+            /// <summary>The third quartile (75th percentile) of the data.</summary>
+            public double Q3 { get; set; }
+
+            /// <summary>The maximum value in the data.</summary>
+            public double Maximum { get; set; }
+
+            /// <summary>
+            /// Returns a string representation of the summary statistics.
+            /// </summary>
+            public override string ToString()
+            {
+                return $"Count: {Count}, Mean: {Mean:F4}, Std: {StandardDeviation:F4}, " +
+                       $"Min: {Minimum:F4}, Q1: {Q1:F4}, Median: {Median:F4}, Q3: {Q3:F4}, Max: {Maximum:F4}";
+            }
         }
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         /// <summary>
-        /// Creates a histogram by counting the frequency of each value in a data set and grouping them into bins.
-        /// The function returns a dictionary where the keys are bin ranges and the values are the counts of items within those ranges.
-        /// <example>
-        /// <code>
-        /// var data = new List<int> {1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5};
-        /// var histogram = Histogram(data, 5);
-        /// foreach (var kvp in histogram)
-        /// {
-        ///     Console.WriteLine($"Range: {kvp.Key}, Count: {kvp.Value}");
-        /// }
-        /// // Output:
-        /// // Range: 1-2, Count: 3
-        /// // Range: 3-4, Count: 7
-        /// // Range: 5-6, Count: 5
-        /// </code>
-        /// </example>
+        /// Validates that a data sequence contains no NaN or Infinity values.
         /// </summary>
-        /// <param name="data">The input data sequence.</param>
-        /// <param name="binCount">The number of bins.</param>
-        /// <returns>A dictionary where keys are bin ranges and values are their counts.</returns>
-        /// <exception cref="StatisticsError">Thrown if the data sequence is empty or bin count is less than 1.</exception>
-        public static Dictionary<string, int> Histogram(IEnumerable<int> data, int binCount)
+        /// <param name="data">The data sequence to validate.</param>
+        /// <param name="parameterName">The parameter name for error reporting.</param>
+        /// <exception cref="StatisticsError">Thrown if data contains NaN or Infinity values.</exception>
+        private static void ValidateFiniteValues(IEnumerable<double> data, string parameterName)
         {
-            if (data == null || !data.Any())
-            {
-                throw new StatisticsError("Data sequence cannot be empty.");
-            }
-
-            if (binCount < 1)
-            {
-                throw new StatisticsError("Bin count must be at least 1.");
-            }
-
-            int min = data.Min();
-            int max = data.Max();
-            int binSize = (max - min + 1) / binCount;
-
-            var histogram = new Dictionary<string, int>();
-
-            for (int i = 0; i < binCount; i++)
-            {
-                int binStart = min + i * binSize;
-                int binEnd = (i == binCount - 1) ? max : binStart + binSize - 1;
-                string binRange = $"{binStart}-{binEnd}";
-                histogram[binRange] = 0;
-            }
-
             foreach (var value in data)
             {
-                foreach (var binRange in histogram.Keys.ToList())
+                if (double.IsNaN(value))
                 {
-                    var parts = binRange.Split('-');
-                    int binStart = int.Parse(parts[0]);
-                    int binEnd = int.Parse(parts[1]);
-
-                    if (value >= binStart && value <= binEnd)
-                    {
-                        histogram[binRange]++;
-                        break;
-                    }
+                    throw new StatisticsError($"{parameterName} contains NaN values.");
+                }
+                if (double.IsInfinity(value))
+                {
+                    throw new StatisticsError($"{parameterName} contains Infinity values.");
                 }
             }
-
-            return histogram;
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        /// <summary>
+        /// Validates that a bandwidth value is positive and finite.
+        /// </summary>
+        /// <param name="bandwidth">The bandwidth value to validate.</param>
+        /// <exception cref="StatisticsError">Thrown if bandwidth is not positive and finite.</exception>
+        private static void ValidateBandwidth(double bandwidth)
+        {
+            if (double.IsNaN(bandwidth) || double.IsInfinity(bandwidth) || bandwidth <= 0)
+            {
+                throw new StatisticsError("Bandwidth must be a positive finite number.");
+            }
+        }
 
         /// <summary>
         /// Calculates the Cumulative Distribution Function (CDF) using the trapezoidal rule.
@@ -1581,7 +1711,7 @@
                 "quartic" => Math.Abs(u) <= 1 ? 15.0 / 16.0 * Math.Pow(1 - u * u, 2) : 0,
                 "triweight" => Math.Abs(u) <= 1 ? 35.0 / 32.0 * Math.Pow(1 - u * u, 3) : 0,
                 "cosine" => Math.Abs(u) <= 1 ? Math.PI / 4 * Math.Cos(Math.PI / 2 * u) : 0,
-                _ => throw new ArgumentException("Invalid kernel specified."),
+                _ => throw new StatisticsError("Invalid kernel specified."),
             };
         }
 
@@ -1594,7 +1724,7 @@
         {
             if (x < 0)
             {
-                throw new ArgumentException("x must be non-negative.");
+                throw new StatisticsError("x must be non-negative.");
             }
 
             if (x == 0 || x == 1)
@@ -1654,11 +1784,11 @@
 
             if (x <= 0)
             {
-                throw new ArgumentException("x must be positive.");
+                throw new StatisticsError("x must be positive.");
             }
 
             double result = -EULER_MASCHERONI_CONSTANT;
-            for (int k = 0; k < 100; k++)
+            for ( int k = 0; k < 100; k++)
             {
                 result += (1.0 / (k + 1)) - (1.0 / (x + k));
             }
@@ -1678,6 +1808,8 @@
             {
                 return 0;
             }
+
+
 
             long result = 1;
             for (int i = 1; i <= k; i++)
