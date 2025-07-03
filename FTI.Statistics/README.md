@@ -3,7 +3,8 @@
 [![NuGet Version](https://img.shields.io/nuget/v/FTI.Statistics.svg)](https://www.nuget.org/packages/FTI.Statistics/)
 [![NuGet Downloads](https://img.shields.io/nuget/dt/FTI.Statistics.svg)](https://www.nuget.org/packages/FTI.Statistics/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![.NET](https://img.shields.io/badge/.NET-6%7C7%7C8%7C9%7CCore_3.1-512BD4)](https://dotnet.microsoft.com/)
+[![.NET](https://img.shields.io/badge/.NET-Framework_4.8%7CStandard_2.0%7C2.1%7CCore_3.1%7C6%7C7%7C8%7C9-512BD4)](https://dotnet.microsoft.com/)
+
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
 
 A comprehensive, high-performance statistics library for .NET providing essential mathematical statistics functions for real-valued numerical data. FTI.Statistics offers robust statistical analysis capabilities with production-ready reliability, comprehensive input validation, and zero external dependencies.
@@ -13,6 +14,7 @@ A comprehensive, high-performance statistics library for .NET providing essentia
 - [Key Features](#key-features)
 - [Installation](#installation)
 - [Framework Support](#framework-support)
+- [Platform-Specific Benefits](#platform-specific-benefits)
 - [Quick Start Examples](#quick-start-examples)
 - [Complete Function Reference](#complete-function-reference)
 - [Error Handling](#error-handling)
@@ -79,11 +81,26 @@ dotnet add package FTI.Statistics
 
 ## Framework Support
 
+- ✅ **.NET Framework 4.8** - Legacy Windows applications and enterprise environments
+- ✅ **.NET Standard 2.0** - Broad ecosystem compatibility, Unity game development
+- ✅ **.NET Standard 2.1** - Enhanced performance features and Xamarin mobile apps
 - ✅ .NET Core 3.1
 - ✅ .NET 6.0
 - ✅ .NET 7.0  
 - ✅ .NET 8.0
 - ✅ .NET 9.0
+
+
+
+### Platform-Specific Benefits
+- **Enterprise Legacy Systems**: Full .NET Framework 4.8 support for existing Windows applications
+- **Game Development**: Unity compatibility through .NET Standard 2.0
+- **Mobile Development**: Xamarin support via .NET Standard 2.0/2.1
+- **Cross-Platform**: Linux, macOS, and Windows support with .NET Core/6+
+- **Cloud-Native**: Optimized for containerized and serverless deployments
+- **IoT & Embedded**: Lightweight deployment for resource-constrained environments
+
+
 
 ## Quick Start Examples
 
@@ -156,6 +173,31 @@ double cdf = normalDist.Cdf(2.5);    // Cumulative probability at x=2.5
 long binomial = Stats.Binomial(10, 3);                       // 10 choose 3 = 120
 long multinomial = Stats.Multinomial(10, new List<int> { 3, 3, 4 }); // Multinomial coefficient
 ```
+
+### Enterprise Applications
+```csharp
+// Legacy .NET Framework 4.8 enterprise systems
+var performanceMetrics = GetSystemMetrics();
+var summary = Stats.Summary(performanceMetrics);
+var trend = Stats.LinearRegression(timeStamps, cpuUsage);
+```
+
+### Game Development (Unity)
+```csharp
+// Unity game analytics with .NET Standard 2.0
+var playerScores = GetPlayerPerformanceData();
+double avgScore = Stats.Mean(playerScores);
+double difficulty = Stats.Percentile(playerScores, 75); // Adjust game difficulty
+```
+
+### Modern Cloud Applications
+```csharp
+// .NET 6+ cloud-native microservices
+var apiResponseTimes = GetResponseTimeMetrics();
+double p95 = Stats.Percentile(apiResponseTimes, 95); // SLA monitoring
+var outliers = apiResponseTimes.Where(t => t > Stats.Mean(apiResponseTimes) + 2 * Stats.Stdev(apiResponseTimes));
+```
+
 
 ### Working with Different Data Types
 ```csharp
@@ -342,7 +384,14 @@ double correlation = Stats.Correlation(treatment, outcome);
 
 ## Version History
 
-### Version 1.1.2 (Latest)
+- **NEW**: Professional logo and enhanced visual branding for better package recognition
+- **NEW**: Expanded framework support - Now compatible with 8 major .NET platforms
+- **NEW**: Universal compatibility from legacy .NET Framework 4.8 to cutting-edge .NET 9
+- Enhanced package presentation and professional identity across NuGet ecosystem
+- Optimized for Unity game development, Xamarin mobile apps, and enterprise solutions
+- Comprehensive platform support for legacy, modern, and future .NET applications
+
+### Version 1.1.2
 - Enhanced XML documentation with comprehensive examples and tooltips
 - Improved code comments and developer experience
 - Documentation improvements and clarity enhancements
